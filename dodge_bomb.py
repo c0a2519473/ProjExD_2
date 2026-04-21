@@ -21,6 +21,10 @@ def check_bound(rct:pg.Rect) -> tuple[bool,bool]:
     return yoko,tate 
 
 def gameover(screen:pg.Surface) -> None:
+    """
+    引数：screen変数
+    戻り値:黒い画面とその上にこうかとん、白文字が表示される
+    """
     bg_black=pg.Surface((WIDTH,HEIGHT))
     pg.draw.rect(bg_black,(0,0,0),pg.Rect(0,0,1600,900),)
     bg_black.set_alpha(120)
@@ -106,24 +110,18 @@ def main():
             kk_rct.move_ip(-sum_mv[0],-sum_mv[1])
 
         screen.blit(kk_img, kk_rct)
-        
+        #--------------------------------
         avx=vx*bb_accs[min(tmr//500,9)]
         avy=vy*bb_accs[min(tmr//500,9)]
         bb_img = bb_imgs[min(tmr//500, 9)]
-        
-
-        bb_rct.move_ip(avx,avy)
+        #--------------------------------
+        bb_rct.move_ip(vx,vy)
         yoko,tate=check_bound(bb_rct)
         if not yoko:
             vx *= -1
         if not tate:
             vy *= -1
-
-
-        bb_rct.width=bb_img.get_rect().width
-
-        
-        
+        bb_rct.width=bb_img.get_rect().width    
         screen.blit(bb_img,bb_rct)
         pg.display.update()
         tmr += 1
