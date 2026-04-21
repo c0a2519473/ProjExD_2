@@ -6,6 +6,18 @@ import random
 WIDTH, HEIGHT = 1100, 650
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
+def check_bound(rct:pg.Rect) -> tuple[bool,bool]:
+    """
+    引数で与えられたRectが画面内か判定する関数
+    引数：こうかとんRect or 爆弾Rect
+    戻り値:横方向・縦方向の真理値タプル(True:画面内 False:画面外)
+    """
+    yoko,tate=True,True
+    if rct.left<0 or WIDTH<rct.right:
+        yoko=False
+    if rct.top<0 or HEIGHT<rct.bottom:
+        tate=False
+    return yoko,tate 
 
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
@@ -20,6 +32,8 @@ def main():
     bb_rct=bb_img.get_rect()
     bb_rct.centerx=random.randint(0,WIDTH)
     bb_rct.centery=random.randint(0,HEIGHT)
+    vx=+5 #横方向速度 
+    vy=+5 #縦方向速度
     clock = pg.time.Clock()
     tmr = 0
     while True:
@@ -28,7 +42,13 @@ def main():
                 return
         screen.blit(bg_img, [0, 0]) 
 
-        # if key_lst[pg.K_UP]:
+        if kk_rct.colliderect(bb_rct):
+            print("ゲームオーバー")
+            return
+
+        key_lst = pg.key.get_pressed()
+        sum_mv = [0, 0]
+                # if key_lst[pg.K_UP]:
         #     sum_mv[1] -= 5
         # if key_lst[pg.K_DOWN]:
         #     sum_mv[1] += 5
@@ -36,9 +56,6 @@ def main():
         #     sum_mv[0] -= 5
         # if key_lst[pg.K_RIGHT]:
         #     sum_mv[0] += 5
-        
-        key_lst = pg.key.get_pressed()
-        sum_mv = [0, 0]
         DELTA={pg.K_UP:(0,-5),
                pg.K_DOWN:(0,+5),
                pg.K_LEFT:(-5,0),
@@ -50,13 +67,24 @@ def main():
                 sum_mv[0] += mv[0]
                 sum_mv[1] += mv[1]
 
-        vx=+5 #横方向速度 
-        vy=+5 #縦方向速度
         
-        bb_rct.move_ip(vx,vy)
-        screen.blit(bb_img,bb_rct)
+        
+        
+        
         kk_rct.move_ip(sum_mv)
+        if check_bound(kk_rct) != (True, True):
+            kk_rct.move_ip(-sum_mv[0],-sum_mv[1])
+
         screen.blit(kk_img, kk_rct)
+
+        bb_rct.move_ip(vx,vy)
+        yoko,tate=check_bound(bb_rct)
+        if not yoko:
+            vx *= -1
+        if not tate:
+            vy *= -1
+
+        screen.blit(bb_img,bb_rct)
         pg.display.update()
         tmr += 1
         clock.tick(50)
