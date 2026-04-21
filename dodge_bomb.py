@@ -2,6 +2,7 @@ import os
 import sys
 import pygame as pg
 import random
+import time
 
 WIDTH, HEIGHT = 1100, 650
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -18,6 +19,25 @@ def check_bound(rct:pg.Rect) -> tuple[bool,bool]:
     if rct.top<0 or HEIGHT<rct.bottom:
         tate=False
     return yoko,tate 
+
+def gameover(screen:pg.Surface) -> None:
+    bg_black=pg.Surface((WIDTH,HEIGHT))
+    pg.draw.rect(bg_black,(0,0,0),pg.Rect(0,0,1600,900),)
+    bg_black.set_alpha(120)
+    #背景黒
+    fonto=pg.font.Font(None,80)
+    txt=fonto.render("Game Over",True,(255,255,255))
+    txt_rct=txt.get_rect()
+    txt_rct.center=WIDTH/2,HEIGHT/2#文字
+    bg_black.blit(txt,txt_rct)
+    kc_img= pg.image.load("fig/8.png")
+    kc_rct=kc_img.get_rect()
+    kc_rct.center=WIDTH/2-200,HEIGHT/2#こうかとん
+    bg_black.blit(kc_img,kc_rct)
+    kc_rct.center=WIDTH/2+200,HEIGHT/2#こうかとん
+    bg_black.blit(kc_img,kc_rct)
+    screen.blit(bg_black,(0,0))
+
 
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
@@ -43,6 +63,10 @@ def main():
         screen.blit(bg_img, [0, 0]) 
 
         if kk_rct.colliderect(bb_rct):
+            
+            gameover(screen)
+            pg.display.update()
+            time.sleep(5)
             print("ゲームオーバー")
             return
 
@@ -67,10 +91,6 @@ def main():
                 sum_mv[0] += mv[0]
                 sum_mv[1] += mv[1]
 
-        
-        
-        
-        
         kk_rct.move_ip(sum_mv)
         if check_bound(kk_rct) != (True, True):
             kk_rct.move_ip(-sum_mv[0],-sum_mv[1])
@@ -84,6 +104,7 @@ def main():
         if not tate:
             vy *= -1
 
+        
         screen.blit(bb_img,bb_rct)
         pg.display.update()
         tmr += 1
